@@ -3,7 +3,7 @@ extends layout
 block content
   h1= title
   p Welcome to #{title}
-  form(action='/process_post', method='POST')
+  form(action='/form', method='POST')
     p
       p  Name:
       input(type='text', name='first_name', value='')
@@ -18,6 +18,5 @@ block content
       input(type='radio', name='gender', value='other')
 
     input(type='submit', value='Submit')
-
-
+  p #{allErrors}
 

@@ -28,24 +28,33 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(validator());
 
-// have to use every router? really unsure why
+// must declare use for any /etc extensions to local host
 app.use('/', index);
 app.use('/users', users);
 app.use('/form', form);
-app.use('/formerrors', formerrors);
+//app.use('/formerrors', formerrors);
 
-app.post('/process_post', urlencodedParser, function(req,res){
+app.post('/form', urlencodedParser, function(req,res){
+  // santize inputs
+  req.sanitizeBody('first_name').escape();
+  req.sanitizeBody('age').escape();
+  req.sanitizeBody('gender').escape();
+
+  // make server check input in order of priority
   req.checkBody("first_name", "Input a name.").notEmpty();
   req.checkBody("first_name", "Invalid name.").isAlpha();
-  req.checkBody("age", "Input an age").notEmpty();
+  req.checkBody("age", "Input an age.").notEmpty();
   req.checkBody("age", "Invalid age.").isInt();
+  req.checkBody("gender", "Select a gender.").notEmpty();
 
   var errors = req.validationErrors();
   console.log(errors);
   if (errors) {
     let hasNameError = false;
     let hasAgeError = false;
+    let hasGenderError = false;
     let errorsString = "";
+    // chain errors, and maintain error priority
     for (let i = 0; i< errors.length; i++) {
       if(errors[i].param === "first_name" && !hasNameError) {
         hasNameError = true;
@@ -53,12 +62,15 @@ app.post('/process_post', urlencodedParser, function(req,res){
       } else if(errors[i].param === "age" && !hasAgeError){
         hasAgeError = true;
         errorsString += errors[i].msg + "\n";
+      } else if(errors[i].param === "gender" && !hasGenderError) {
+        hasGenderError = true;
+        errorsString += errors[i].msg + "\n";
       }
     }
-     res.render('formerrors', {allErrors: errorsString});
+     res.render('form', {title: "Form", allErrors: errorsString});
      return;
    } else {
-     res.render('formerrors', {allErrors: "No problems detected."});
+     res.render('form', {allErrors: "No problems detected."});
      return;
    }
 });
@@ -79,21 +91,6 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
-});
-
-app.post('./register', urlencodedParser, function (req, res) {
-   req.checkBody("name", "Bruv have some respect, capitlize your name.").isAlpha(); // hang on
-   var errors = req.validationErrors();
-   if (errors) {
-    let stringedErrors = (errors[0].msg);
-    // document.getElementById("errors").innerHTML = stringedErrors;
-    // res.send(stringedErrors);
-     res.render('formerrors', errors);
-     return;
-   } else {
-     res.send("all good m8");
-     return;
-   }
 });
 
 module.exports = app;
