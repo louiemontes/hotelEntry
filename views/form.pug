@@ -1,22 +1,25 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
-  form(action='/form', method='POST')
+  span(class='centeringTitle')
+    h1= title
+    p Welcome to #{title}
+  form(action='/form', method='POST' class='centeringForm')
     p
-      p  Name:
+      p  First Name:
       input(type='text', name='first_name', value='')
+      p  Last Name:
+      input(type='text', name='last_name', value='')
+
       p  Age:
       input(type='number', name='age', value='')
       p Gender:
-      |  Male:
-      input(type='radio', name='gender', value='male')
-      |  Female:
-      input(type='radio', name='gender', value='female')
-      |  Prefer not to answer:
-      input(type='radio', name='gender', value='other')
-
+        p Male:
+          input(type='radio', name='gender', value='Male')
+        p Female:
+          input(type='radio', name='gender', value='Female')
+        p  Prefer not to answer:
+          input(type='radio', name='gender', value='Other')
+        p(class='errors') #{allErrors}
     input(type='submit', value='Submit')
-  p #{allErrors}
 

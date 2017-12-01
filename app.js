@@ -9,6 +9,7 @@ var index = require('./routes/index');
 var users = require('./routes/users');
 var form = require('./routes/form');
 var formerrors = require('./routes/formerrors');
+var dataDisplay = require('./routes/dataDisplay');
 
 var validator = require('express-validator');
 
@@ -32,6 +33,7 @@ app.use(validator());
 app.use('/', index);
 app.use('/users', users);
 app.use('/form', form);
+app.use('/dataDisplay', dataDisplay);
 //app.use('/formerrors', formerrors);
 
 app.post('/form', urlencodedParser, function(req,res){
@@ -41,8 +43,11 @@ app.post('/form', urlencodedParser, function(req,res){
   req.sanitizeBody('gender').escape();
 
   // make server check input in order of priority
-  req.checkBody("first_name", "Input a name.").notEmpty();
-  req.checkBody("first_name", "Invalid name.").isAlpha();
+  req.checkBody("first_name", "Input a first name.").notEmpty();
+  req.checkBody("first_name", "Invalid first name. First name can only contain letters.").isAlpha();
+  req.checkBody("last_name", "Input a last name.").notEmpty();
+  req.checkBody("last_name", "Invalid last name. Last name can only contain letters.").isAlpha();
+
   req.checkBody("age", "Input an age.").notEmpty();
   req.checkBody("age", "Invalid age.").isInt();
   req.checkBody("gender", "Select a gender.").notEmpty();
@@ -50,14 +55,18 @@ app.post('/form', urlencodedParser, function(req,res){
   var errors = req.validationErrors();
   console.log(errors);
   if (errors) {
-    let hasNameError = false;
+    let hasFirstNameError = false;
+    let hasLastNameError = false;
     let hasAgeError = false;
     let hasGenderError = false;
     let errorsString = "";
     // chain errors, and maintain error priority
     for (let i = 0; i< errors.length; i++) {
-      if(errors[i].param === "first_name" && !hasNameError) {
-        hasNameError = true;
+      if(errors[i].param === "first_name" && !hasFirstNameError) {
+        hasFirstNameError = true;
+        errorsString += errors[i].msg + "\n";
+      } else if (errors[i].param === "last_name" && !hasLastNameError) {
+        hasLastNameError = true;
         errorsString += errors[i].msg + "\n";
       } else if(errors[i].param === "age" && !hasAgeError){
         hasAgeError = true;
@@ -70,7 +79,9 @@ app.post('/form', urlencodedParser, function(req,res){
      res.render('form', {title: "Form", allErrors: errorsString});
      return;
    } else {
-     res.render('form', {allErrors: "No problems detected."});
+//     res.render('form', {allErrors: "No problems detected."});
+     console.log(req.body.first_name);
+     res.render('dataDisplay', {entries: [req.body.first_name, req.body.last_name, req.body.age, req.body.gender]});
      return;
    }
 });
