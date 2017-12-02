@@ -39,6 +39,7 @@ app.use('/dataDisplay', dataDisplay);
 app.post('/form', urlencodedParser, function(req,res){
   // santize inputs
   req.sanitizeBody('first_name').escape();
+  req.sanitizeBody('first_name').escape();
   req.sanitizeBody('age').escape();
   req.sanitizeBody('gender').escape();
 
